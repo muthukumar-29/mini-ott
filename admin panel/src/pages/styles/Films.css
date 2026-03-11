@@ -1,0 +1,80 @@
+.films-page {
+  animation: fadeIn 0.3s;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.filters-section {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.search-input-large {
+  flex: 1;
+  min-width: 250px;
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.search-input-large:focus {
+  outline: none;
+  border-color: #e50914;
+  background-color: #1a1a1a;
+}
+
+.search-input-large::placeholder {
+  color: #666666;
+}
+
+.filter-select {
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.py-5 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+  }
+
+  .filters-section {
+    flex-direction: column;
+  }
+
+  .search-input-large,
+  .filter-select {
+    width: 100%;
+  }
+}

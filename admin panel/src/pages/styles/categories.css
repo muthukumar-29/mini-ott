@@ -1,0 +1,18 @@
+.categories-page {
+  background-color: #0f172a;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.table-dark {
+  background-color: #020617;
+}
+
+.modal-content {
+  border-radius: 10px;
+}
+
+.form-control:focus {
+  box-shadow: none;
+  border-color: #3b82f6;
+}
