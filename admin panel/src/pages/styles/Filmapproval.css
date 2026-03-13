@@ -1,0 +1,237 @@
+.film-approval-page {
+    animation: fadeIn 0.3s;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.approval-stats {
+    display: flex;
+    gap: 12px;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 14px 22px;
+    text-align: center;
+    min-width: 80px;
+}
+
+.pending-box {
+    border-top: 3px solid #ff9900;
+}
+
+.approved-box {
+    border-top: 3px solid #00cc66;
+}
+
+.rejected-box {
+    border-top: 3px solid #e50914;
+}
+
+.stat-num {
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.stat-lbl {
+    font-size: 12px;
+    color: #b3b3b3;
+}
+
+.section-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #b3b3b3;
+    margin: 25px 0 14px;
+    padding-left: 10px;
+    border-left: 3px solid #e50914;
+}
+
+.film-approval-card {
+    background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    transition: border-color 0.2s;
+}
+
+.film-approval-card:hover {
+    border-color: #3a3a3a;
+}
+
+.film-approval-card.status-pending {
+    border-left: 4px solid #ff9900;
+}
+
+.film-approval-card.status-approved {
+    border-left: 4px solid #00cc66;
+}
+
+.film-approval-card.status-rejected {
+    border-left: 4px solid #e50914;
+}
+
+.film-card-left {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+}
+
+.film-thumb {
+    width: 80px;
+    height: 110px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.film-card-info {
+    flex: 1;
+}
+
+.film-card-info h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 6px;
+}
+
+.film-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #b3b3b3;
+    margin: 0 0 8px;
+    flex-wrap: wrap;
+}
+
+.film-description {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.5;
+    margin: 0 0 8px;
+}
+
+.film-uploader {
+    font-size: 12px;
+    color: #b3b3b3;
+    margin: 0;
+}
+
+.film-card-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-badge.pending {
+    background: rgba(255, 153, 0, 0.15);
+    color: #ff9900;
+}
+
+.status-badge.approved {
+    background: rgba(0, 204, 102, 0.15);
+    color: #00cc66;
+}
+
+.status-badge.rejected {
+    background: rgba(229, 9, 20, 0.15);
+    color: #e50914;
+}
+
+.approval-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-approve-film {
+    padding: 9px 20px;
+    background: rgba(0, 204, 102, 0.15);
+    border: 1px solid rgba(0, 204, 102, 0.4);
+    color: #00cc66;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-approve-film:hover:not(:disabled) {
+    background: rgba(0, 204, 102, 0.3);
+}
+
+.btn-reject-film {
+    padding: 9px 20px;
+    background: rgba(229, 9, 20, 0.15);
+    border: 1px solid rgba(229, 9, 20, 0.4);
+    color: #e50914;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-reject-film:hover:not(:disabled) {
+    background: rgba(229, 9, 20, 0.3);
+}
+
+.btn-reset-film {
+    padding: 9px 16px;
+    background: #2a2a2a;
+    border: 1px solid #3a3a3a;
+    color: #b3b3b3;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-reset-film:hover {
+    background: #3a3a3a;
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .film-approval-card {
+        flex-direction: column;
+    }
+
+    .film-card-right {
+        flex-direction: row;
+        align-items: center;
+        width: 100%;
+    }
+
+    .approval-actions {
+        flex-direction: row;
+    }
+}

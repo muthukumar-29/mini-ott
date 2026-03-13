@@ -6,6 +6,7 @@ const Sidebar = ({ collapsed }) => {
   const menuItems = [
     { id: 'dashboard', path: '/dashboard', icon: '📊', label: 'Dashboard' },
     { id: 'films', path: '/films', icon: '🎬', label: 'Short Films' },
+    { id: 'approval', path: '/films/approval', icon: '✅', label: 'Film Approval' },
     { id: 'categories', path: '/categories', icon: '📂', label: 'Categories' },
     { id: 'users', path: '/users', icon: '👥', label: 'Users' },
     { id: 'analytics', path: '/analytics', icon: '📈', label: 'Analytics' },
@@ -27,9 +28,7 @@ const Sidebar = ({ collapsed }) => {
             <li key={item.id} className="menu-item">
               <NavLink
                 to={item.path}
-                className={({ isActive }) => 
-                  `menu-link ${isActive ? 'active' : ''}`
-                }
+                className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}
               >
                 <span className="menu-icon">{item.icon}</span>
                 {!collapsed && <span className="menu-text">{item.label}</span>}

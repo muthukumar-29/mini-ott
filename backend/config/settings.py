@@ -44,6 +44,9 @@ INSTALLED_APPS = [
     'categories',
     'subscriptions',
     'shortfilms',
+    'comments',  
+    'watchlist',
+    'analytics', 
 ]
 
 REST_FRAMEWORK = {
