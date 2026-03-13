@@ -1,292 +1,214 @@
-import React, { useEffect, useState } from "react";
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../services/categoryService";
-
-import Swal from "sweetalert2";
+import React, { useState, useEffect, useRef } from 'react';
+import api from '../api/axios';
+import Swal from 'sweetalert2';
+import './styles/Categories.css';
 
 const Categories = () => {
   const [categories, setCategories] = useState([]);
-  const [name, setName] = useState("");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [editingId, setEditingId] = useState(null);
-
-  const [pageLoading, setPageLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editCat, setEditCat] = useState(null);
+  const [form, setForm] = useState({ name: '', description: '' });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
+  const fileRef = useRef();
 
-  // ⭐ FETCH DATA WITH LOADER
+  useEffect(() => { fetchCategories(); }, []);
+
   const fetchCategories = async () => {
     try {
-      setPageLoading(true);
-
-      const res = await getCategories();
-
-      if (res && res.data) {
-        setCategories(res.data);
-      }
-
-    } catch (error) {
-      Swal.fire("Error", "Failed to load categories", "error");
-    } finally {
-      setPageLoading(false);
-    }
+      setLoading(true);
+      const res = await api.get('categories/');
+      setCategories(res.data?.results || res.data || []);
+    } catch { } finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const openAddModal = () => {
-    setName("");
-    setImage(null);
-    setPreview(null);
-    setEditingId(null);
+  const openAdd = () => {
+    setEditCat(null);
+    setForm({ name: '', description: '' });
+    setImageFile(null);
+    setImagePreview('');
+    setShowModal(true);
   };
 
-  const openEditModal = (category) => {
-    setName(category.name);
-    setEditingId(category.id);
-    setPreview(category.image || null);
-    setImage(null);
+  const openEdit = (cat) => {
+    setEditCat(cat);
+    setForm({ name: cat.name, description: cat.description || '' });
+    setImageFile(null);
+    setImagePreview(cat.image || '');
+    setShowModal(true);
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setImage(file);
-
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-    }
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
-  // ⭐ SAVE CATEGORY
   const handleSave = async () => {
-    if (!name.trim()) {
-      Swal.fire("Warning", "Category name is required", "warning");
+    if (!form.name.trim()) {
+      Swal.fire('Error', 'Category name is required', 'error');
       return;
     }
-
+    setSaving(true);
     try {
-      setSaving(true);
+      const payload = new FormData();
+      payload.append('name', form.name);
+      payload.append('description', form.description);
+      if (imageFile) payload.append('image', imageFile);
 
-      const formData = new FormData();
-      formData.append("name", name);
-
-      if (image) {
-        formData.append("image", image);
-      }
-
-      let response;
-
-      if (editingId) {
-        response = await updateCategory(editingId, formData);
+      if (editCat) {
+        const res = await api.patch(`categories/${editCat.id}/`, payload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setCategories(prev => prev.map(c => c.id === editCat.id ? res.data : c));
+        Swal.fire({ icon: 'success', title: 'Category Updated!', timer: 1200, showConfirmButton: false });
       } else {
-        response = await createCategory(formData);
+        const res = await api.post('categories/', payload, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setCategories(prev => [...prev, res.data]);
+        Swal.fire({ icon: 'success', title: 'Category Created!', timer: 1200, showConfirmButton: false });
       }
-
-      // ✅ SUCCESS CHECK
-      if (response?.status === 200 || response?.status === 201) {
-        Swal.fire(
-          "Success",
-          editingId ? "Category updated" : "Category created",
-          "success"
-        );
-
-        fetchCategories();
-
-        document.getElementById("closeCategoryModal").click();
-      }
-
-    } catch (error) {
-      console.error(error);
-
-      Swal.fire(
-        "Error",
-        error?.response?.data?.detail ||
-        "Something went wrong. Try again.",
-        "error"
-      );
-    } finally {
-      setSaving(false);
-    }
+      setShowModal(false);
+    } catch (err) {
+      Swal.fire('Error', JSON.stringify(err?.response?.data) || 'Failed to save', 'error');
+    } finally { setSaving(false); }
   };
 
-  // ⭐ DELETE CATEGORY
-  const handleDelete = async (id) => {
-    const confirm = await Swal.fire({
-      title: "Delete Category?",
-      text: "This action cannot be undone",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      confirmButtonText: "Delete",
+  const handleDelete = async (id, name) => {
+    const result = await Swal.fire({
+      title: `Delete "${name}"?`,
+      text: 'All films in this category may be affected.',
+      icon: 'warning', showCancelButton: true,
+      confirmButtonColor: '#e50914', confirmButtonText: 'Delete',
     });
-
-    if (!confirm.isConfirmed) return;
-
+    if (!result.isConfirmed) return;
     try {
-      await deleteCategory(id);
-
-      Swal.fire("Deleted", "Category removed", "success");
-
-      fetchCategories();
-
-    } catch {
-      Swal.fire("Error", "Delete failed", "error");
-    }
+      await api.delete(`categories/${id}/`);
+      setCategories(prev => prev.filter(c => c.id !== id));
+      Swal.fire({ icon: 'success', title: 'Deleted!', timer: 1200, showConfirmButton: false });
+    } catch { Swal.fire('Error', 'Could not delete category', 'error'); }
   };
+
+  const filtered = categories.filter(c =>
+    !search || c.name?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="container mt-4 text-light">
-
-      {/* HEADER */}
-      <div className="d-flex justify-content-between mb-3">
-        <h3>Categories</h3>
-
-        <button
-          className="btn btn-primary"
-          data-bs-toggle="modal"
-          data-bs-target="#categoryModal"
-          onClick={openAddModal}
-        >
-          Add Category
-        </button>
+    <div className="categories-page">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Categories</h1>
+          <p className="page-subtitle">{categories.length} categor{categories.length !== 1 ? 'ies' : 'y'}</p>
+        </div>
+        <button className="btn-primary-red" onClick={openAdd}>+ Add Category</button>
       </div>
 
-      {/* ⭐ PAGE LOADER */}
-      {pageLoading ? (
-        <div className="text-center mt-5">
-          <div className="spinner-border text-light"></div>
-          <p className="mt-3">Loading categories...</p>
+      <div style={{ marginBottom: 24 }}>
+        <input
+          type="text" className="search-input-large"
+          placeholder="🔍 Search categories..."
+          value={search} onChange={e => setSearch(e.target.value)}
+          style={{ maxWidth: 400 }}
+        />
+      </div>
+
+      {loading ? (
+        <div className="loading-spinner"><div className="spinner-border"></div></div>
+      ) : filtered.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-state-icon">📂</div>
+          <h3 className="empty-state-title">No categories found</h3>
+          <p className="empty-state-description">Create your first category to organize films.</p>
+          <button className="btn-primary-red" style={{ marginTop: 10 }} onClick={openAdd}>+ Add Category</button>
         </div>
       ) : (
-
-        /* TABLE */
-        <table className="table table-dark">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {categories.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="text-center">
-                  No categories available
-                </td>
-              </tr>
-            ) : (
-              categories.map((cat, index) => (
-                <tr key={cat.id}>
-                  <td>{index + 1}</td>
-
-                  <td>
-                    {cat.image && (
-                      <img
-                        src={cat.image}
-                        alt="cat"
-                        width="60"
-                        height="40"
-                        style={{ objectFit: "cover" }}
-                      />
-                    )}
-                  </td>
-
-                  <td>{cat.name}</td>
-
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      data-bs-toggle="modal"
-                      data-bs-target="#categoryModal"
-                      onClick={() => openEditModal(cat)}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(cat.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <div className="categories-grid">
+          {filtered.map(cat => (
+            <div key={cat.id} className="category-card">
+              <div className="category-image-wrap">
+                {cat.image ? (
+                  <img src={cat.image} alt={cat.name} className="category-image" />
+                ) : (
+                  <div className="category-image-placeholder">📂</div>
+                )}
+                <div className="category-film-count">
+                  {cat.film_count ?? 0} films
+                </div>
+              </div>
+              <div className="category-body">
+                <h3 className="category-name">{cat.name}</h3>
+                {cat.description && (
+                  <p className="category-desc">{cat.description}</p>
+                )}
+              </div>
+              <div className="category-actions">
+                <button className="btn-cat-edit" onClick={() => openEdit(cat)}>✏️ Edit</button>
+                <button className="btn-cat-delete" onClick={() => handleDelete(cat.id, cat.name)}>🗑️ Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
-      {/* MODAL */}
-      <div className="modal fade" id="categoryModal">
-        <div className="modal-dialog">
-          <div className="modal-content bg-dark text-light">
-
+      {/* Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-box" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
-              <h5>{editingId ? "Edit Category" : "Add Category"}</h5>
-
-              <button
-                type="button"
-                id="closeCategoryModal"
-                className="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-              ></button>
+              <h3>{editCat ? 'Edit Category' : 'Add Category'}</h3>
+              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </div>
-
             <div className="modal-body">
-              <label>Name</label>
-              <input
-                className="form-control mb-3"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-
-              <label>Image</label>
-              <input
-                type="file"
-                className="form-control"
-                onChange={handleImageChange}
-              />
-
-              {preview && (
-                <img src={preview} alt="preview" className="mt-3" width="120" />
-              )}
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn btn-secondary" data-bs-dismiss="modal">
-                Cancel
-              </button>
-
-              <button
-                className="btn btn-primary"
-                onClick={handleSave}
-                disabled={saving}
-              >
-                {saving ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
-                    Saving...
-                  </>
+              {/* Image Upload */}
+              <div className="image-upload-area" onClick={() => fileRef.current.click()}>
+                {imagePreview ? (
+                  <img src={imagePreview} alt="preview" className="image-preview" />
                 ) : (
-                  "Save"
+                  <div className="image-upload-placeholder">
+                    <span>📷</span>
+                    <p>Click to upload image</p>
+                    <small>JPG, PNG, WEBP</small>
+                  </div>
                 )}
+                <input type="file" ref={fileRef} accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+              </div>
+              {imagePreview && (
+                <button className="btn-remove-image" onClick={() => { setImageFile(null); setImagePreview(''); }}>
+                  ✕ Remove image
+                </button>
+              )}
+              <div className="form-group">
+                <label>Name *</label>
+                <input
+                  value={form.name}
+                  onChange={e => setForm({ ...form, name: e.target.value })}
+                  placeholder="Category name"
+                />
+              </div>
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={form.description}
+                  onChange={e => setForm({ ...form, description: e.target.value })}
+                  placeholder="Optional description"
+                  rows={3}
+                />
+              </div>
+            </div><br />
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
+              <button className="btn-save-modal" onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving...' : editCat ? 'Update' : 'Create'}
               </button>
             </div>
-
           </div>
         </div>
-      </div>
-
+      )}
     </div>
   );
 };

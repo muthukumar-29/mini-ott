@@ -4,14 +4,14 @@ import './Sidebar.css';
 
 const Sidebar = ({ collapsed }) => {
   const menuItems = [
-    { id: 'dashboard', path: '/dashboard', icon: '📊', label: 'Dashboard' },
-    { id: 'films', path: '/films', icon: '🎬', label: 'Short Films' },
-    { id: 'approval', path: '/films/approval', icon: '✅', label: 'Film Approval' },
-    { id: 'categories', path: '/categories', icon: '📂', label: 'Categories' },
-    { id: 'users', path: '/users', icon: '👥', label: 'Users' },
-    { id: 'analytics', path: '/analytics', icon: '📈', label: 'Analytics' },
-    { id: 'comments', path: '/comments', icon: '💬', label: 'Comments' },
-    { id: 'settings', path: '/settings', icon: '⚙️', label: 'Settings' },
+    { id: 'dashboard', path: '/dashboard', icon: '📊', label: 'Dashboard', end: true },
+    { id: 'films', path: '/films', icon: '🎬', label: 'Short Films', end: true },
+    { id: 'approval', path: '/films/approval', icon: '✅', label: 'Film Approval', end: true },
+    { id: 'categories', path: '/categories', icon: '📂', label: 'Categories', end: true },
+    { id: 'users', path: '/users', icon: '👥', label: 'Users', end: true },
+    { id: 'analytics', path: '/analytics', icon: '📈', label: 'Analytics', end: true },
+    { id: 'comments', path: '/comments', icon: '💬', label: 'Comments', end: true },
+    { id: 'settings', path: '/settings', icon: '⚙️', label: 'Settings', end: true },
   ];
 
   return (
@@ -28,6 +28,7 @@ const Sidebar = ({ collapsed }) => {
             <li key={item.id} className="menu-item">
               <NavLink
                 to={item.path}
+                end={item.end}
                 className={({ isActive }) => `menu-link ${isActive ? 'active' : ''}`}
               >
                 <span className="menu-icon">{item.icon}</span>
