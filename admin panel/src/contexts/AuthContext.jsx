@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -7,61 +7,63 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Run once on app load
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    const storedToken = localStorage.getItem('admin_token');
+    const storedUser = localStorage.getItem('admin_user');
+    if (storedToken) setToken(storedToken);
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsed = JSON.parse(storedUser);
+        setUser(parsed);
+        document.body.classList.add(parsed?.role === 'CREATOR' ? 'role-creator' : 'role-admin');
+      } catch {}
     }
-
     setLoading(false);
   }, []);
 
-  // Login handler
-  const login = ({ accessToken, userData }) => {
-    setToken(accessToken);
-    setUser(userData || null);
-
-    localStorage.setItem("token", accessToken);
-    if (userData) {
-      localStorage.setItem("user", JSON.stringify(userData));
-    }
+  const applyRoleClass = (role) => {
+    document.body.classList.remove('role-admin', 'role-creator');
+    document.body.classList.add(role === 'CREATOR' ? 'role-creator' : 'role-admin');
   };
 
-  // Logout handler
+  const login = ({ token: accessToken, user: userData }) => {
+    setToken(accessToken);
+    setUser(userData || null);
+    localStorage.setItem('admin_token', accessToken);
+    if (userData) localStorage.setItem('admin_user', JSON.stringify(userData));
+    applyRoleClass(userData?.role);
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
-
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_user');
   };
 
-  const value = {
-    token,
-    user,
-    login,
-    logout,
-    isAuthenticated: !!token,
-    loading,
+  const updateUser = (updatedUser) => {
+    setUser(updatedUser);
+    localStorage.setItem('admin_user', JSON.stringify(updatedUser));
   };
+
+  const isAdmin = user?.role === 'ADMIN';
+  const isCreator = user?.role === 'CREATOR';
+  const isAdminOrCreator = isAdmin || isCreator;
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{
+      token, user, login, logout, updateUser,
+      isAuthenticated: !!token,
+      isAdmin, isCreator, isAdminOrCreator,
+      loading
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 };

@@ -1,76 +1,53 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import './TopBar.css';
+import './Topbar.css';
 
-const TopBar = ({ onToggleSidebar }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+const pageTitles = {
+  '/dashboard': 'Dashboard',
+  '/films': 'Short Films',
+  '/films/approval': 'Film Approval',
+  '/categories': 'Categories',
+  '/users': 'Users',
+  '/analytics': 'Analytics',
+  '/comments': 'Comments',
+  '/settings': 'Settings',
+  '/creator/dashboard': 'Creator Dashboard',
+  '/creator/films': 'My Films',
+  '/creator/films/upload': 'Upload Film',
+  '/creator/analytics': 'Analytics',
+  '/creator/comments': 'Comments',
+  '/creator/earnings': 'Earnings',
+  '/creator/settings': 'Settings',
+};
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      console.log('Searching for:', searchTerm);
-      // Implement search functionality
-    }
-  };
+const Topbar = ({ onToggle, collapsed }) => {
+  const location = useLocation();
+  const { user, isAdmin } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  const title = pageTitles[location.pathname] || 'Panel';
+  const roleLabel = isAdmin ? 'ADMIN' : 'CREATOR';
+  const roleColor = isAdmin ? '#e50914' : '#f5a623';
 
   return (
-    <div className="top-bar">
-      <div className="top-bar-left">
-        <button className="toggle-btn" onClick={onToggleSidebar}>
-          ☰
+    <div className="topbar">
+      <div className="topbar-left">
+        <button className="topbar-toggle" onClick={onToggle} title="Toggle sidebar">
+          {collapsed ? '☰' : '✕'}
         </button>
+        <h1 className="topbar-title">{title}</h1>
       </div>
-      <div className="top-bar-right">
-        <form onSubmit={handleSearch} className="search-box">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search films, users..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </form>
-        <div className="notification-icon" title="Notifications">
-          🔔
-          <span className="notification-badge"></span>
+      <div className="topbar-right">
+        <div className="topbar-role" style={{ background: `${roleColor}22`, color: roleColor }}>
+          {roleLabel}
         </div>
-        <div 
-          className="profile-menu"
-          onMouseEnter={() => setShowProfileMenu(true)}
-          onMouseLeave={() => setShowProfileMenu(false)}
-        >
-          <div className="profile-icon" title="Profile">
-            👤
-          </div>
-          {showProfileMenu && (
-            <div className="profile-dropdown">
-              <div className="profile-info">
-                <div className="profile-name">{user?.name || 'Admin User'}</div>
-                <div className="profile-email">{user?.email || 'admin@filmhub.com'}</div>
-              </div>
-              <div className="dropdown-divider"></div>
-              <button className="dropdown-item" onClick={() => navigate('/settings')}>
-                ⚙️ Settings
-              </button>
-              <button className="dropdown-item" onClick={handleLogout}>
-                🚪 Logout
-              </button>
-            </div>
-          )}
+        <div className="topbar-user">
+          <div className="topbar-avatar">{(user?.username || 'U')[0].toUpperCase()}</div>
+          <span className="topbar-username">{user?.username}</span>
         </div>
       </div>
     </div>
   );
 };
 
-export default TopBar;
+export default Topbar;
