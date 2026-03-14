@@ -1,71 +1,60 @@
-.stat-card {
+.stats-card-widget {
   background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
   border: 1px solid #2a2a2a;
   border-radius: 12px;
-  padding: 25px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  padding: 22px;
+  transition: transform 0.2s, border-color 0.2s;
 }
 
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(229, 9, 20, 0.2);
+.stats-card-widget:hover {
+  transform: translateY(-3px);
+  border-color: #3a3a3a;
 }
 
-.stat-header {
+.stats-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
-.stat-title {
-  font-size: 14px;
+.stats-card-title {
+  font-size: 13px;
   color: #b3b3b3;
   font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.stat-icon {
-  width: 45px;
-  height: 45px;
+.stats-card-icon {
+  width: 42px;
+  height: 42px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 20px;
 }
 
-.stat-icon.red {
-  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
-}
+.stats-card-icon.red    { background: rgba(229, 9, 20, 0.15); }
+.stats-card-icon.blue   { background: rgba(59, 130, 246, 0.15); }
+.stats-card-icon.green  { background: rgba(34, 197, 94, 0.15); }
+.stats-card-icon.purple { background: rgba(139, 92, 246, 0.15); }
+.stats-card-icon.orange { background: rgba(249, 115, 22, 0.15); }
 
-.stat-icon.blue {
-  background: linear-gradient(135deg, #0066ff 0%, #0047b3 100%);
-}
-
-.stat-icon.green {
-  background: linear-gradient(135deg, #00cc66 0%, #009944 100%);
-}
-
-.stat-icon.purple {
-  background: linear-gradient(135deg, #9966ff 0%, #6633cc 100%);
-}
-
-.stat-icon.orange {
-  background: linear-gradient(135deg, #ff9900 0%, #cc7700 100%);
-}
-
-.stat-value {
-  font-size: 32px;
-  font-weight: 700;
+.stats-card-value {
+  font-size: 30px;
+  font-weight: 800;
   color: #ffffff;
-  margin-bottom: 5px;
+  line-height: 1;
+  margin-bottom: 6px;
 }
 
-.stat-change {
-  font-size: 13px;
-  color: #00cc66;
+.stats-card-change {
+  font-size: 12px;
+  color: #22c55e;
 }
 
-.stat-change.negative {
-  color: #ff3333;
+.stats-card-change.negative {
+  color: #ef4444;
 }

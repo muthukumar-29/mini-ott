@@ -1,40 +1,56 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
-import api from "../api/axios";
-import "./styles/Login.css";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import api from '../api/axios';
+import './styles/Login.css';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
-  });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+    setError('');
 
     try {
-      // ✅ REAL DJANGO LOGIN
-      const res = await api.post("auth/login/", {
+      // Step 1: Get token
+      const tokenRes = await api.post('auth/login/', {
         username: credentials.username,
         password: credentials.password,
       });
 
-      // ✅ STORE TOKEN VIA CONTEXT
-      login({
-        accessToken: res.data.access,
-        userData: { username: credentials.username },
-      });
+      const accessToken = tokenRes.data.access;
+      if (!accessToken) throw new Error('No token received');
 
-      navigate("/dashboard");
+      // Step 2: Temporarily store token so profile request is authorized
+      localStorage.setItem('admin_token', accessToken);
+
+      // Step 3: Fetch profile to get role
+      const profileRes = await api.get('auth/profile/');
+      const userData = profileRes.data;
+
+      const role = userData.role;
+      if (role !== 'ADMIN' && role !== 'CREATOR') {
+        localStorage.removeItem('admin_token');
+        setError('Access denied. Only Admins and Creators can log in here.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 4: Commit to AuthContext
+      login({ token: accessToken, user: userData });
+
+      // Step 5: Redirect by role
+      navigate(role === 'ADMIN' ? '/dashboard' : '/creator/dashboard', { replace: true });
+
     } catch (err) {
-      setError("Invalid username or password");
+      localStorage.removeItem('admin_token');
+      const detail = err?.response?.data?.detail;
+      setError(detail || 'Invalid username or password.');
     } finally {
       setLoading(false);
     }
@@ -48,7 +64,7 @@ const Login = () => {
             <div className="logo-icon-large">🎥</div>
             <h1>FilmHub</h1>
           </div>
-          <p>Admin Panel</p>
+          <p>Admin &amp; Creator Panel</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -59,14 +75,10 @@ const Login = () => {
             <input
               type="text"
               value={credentials.username}
-              onChange={(e) =>
-                setCredentials({
-                  ...credentials,
-                  username: e.target.value,
-                })
-              }
+              onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
               required
-              placeholder="Enter your Username"
+              placeholder="Enter your username"
+              autoComplete="username"
             />
           </div>
 
@@ -75,21 +87,21 @@ const Login = () => {
             <input
               type="password"
               value={credentials.password}
-              onChange={(e) =>
-                setCredentials({
-                  ...credentials,
-                  password: e.target.value,
-                })
-              }
+              onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
               required
               placeholder="Enter your password"
+              autoComplete="current-password"
             />
           </div>
 
           <button type="submit" className="btn-login" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
+        <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: '#555' }}>
+          Admins and Creators only
+        </p>
       </div>
     </div>
   );

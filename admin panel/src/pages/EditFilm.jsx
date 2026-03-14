@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
-import { getCategories } from '../services/categoryService';
 import Swal from 'sweetalert2';
+import './styles/AddFilm.css';
+
+const LANGUAGES = ['Tamil', 'English', 'Hindi', 'Telugu', 'Malayalam', 'Kannada', 'Bengali', 'Other'];
 
 const EditFilm = () => {
   const { id } = useParams();
@@ -19,15 +21,13 @@ const EditFilm = () => {
     is_premium: false,
   });
 
-  useEffect(() => {
-    loadData();
-  }, [id]);
+  useEffect(() => { loadData(); }, [id]);
 
   const loadData = async () => {
     try {
       const [filmRes, catsRes] = await Promise.all([
         api.get(`shortfilms/${id}/`),
-        getCategories(),
+        api.get('categories/'),
       ]);
       const film = filmRes.data;
       setFormData({
@@ -38,9 +38,10 @@ const EditFilm = () => {
         language: film.language || '',
         is_premium: film.is_premium || false,
       });
-      setCategories(catsRes.data);
-    } catch (err) {
+      setCategories(catsRes.data?.results || catsRes.data || []);
+    } catch {
       Swal.fire('Error', 'Failed to load film data', 'error');
+      navigate('/films');
     } finally {
       setLoading(false);
     }
@@ -48,14 +49,18 @@ const EditFilm = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({ ...formData, [name]: type === 'checkbox' ? checked : value });
+    setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.title.trim()) { Swal.fire('Error', 'Title is required', 'error'); return; }
     setSaving(true);
     try {
-      await api.patch(`shortfilms/${id}/`, formData);
+      await api.patch(`shortfilms/${id}/`, {
+        ...formData,
+        duration_minutes: formData.duration_minutes ? parseInt(formData.duration_minutes) : null,
+      });
       Swal.fire({ icon: 'success', title: 'Film Updated!', timer: 1500, showConfirmButton: false });
       navigate('/films');
     } catch (err) {
@@ -65,65 +70,93 @@ const EditFilm = () => {
     }
   };
 
-  if (loading) return <div className="loading-spinner"><div className="spinner-border text-light"></div></div>;
+  if (loading) return <div className="loading-spinner"><div className="spinner-border"></div></div>;
 
   return (
-    <div className="container mt-4 text-light">
-      <div className="d-flex align-items-center gap-3 mb-4">
-        <button className="btn btn-outline-secondary btn-sm" onClick={() => navigate('/films')}>← Back</button>
-        <h3 className="mb-0">Edit Film #{id}</h3>
+    <div className="add-film-page">
+      <div className="page-header">
+        <div>
+          <h1 className="page-title">Edit Film</h1>
+          <p className="page-subtitle">Update film details</p>
+        </div>
+        <button className="btn-back" onClick={() => navigate('/films')}>← Back to Films</button>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-2" style={{ maxWidth: 700 }}>
-        <div className="mb-3">
-          <label className="form-label">Title *</label>
-          <input name="title" className="form-control bg-dark text-light border-secondary"
-            value={formData.title} onChange={handleChange} required />
-        </div>
+      <form onSubmit={handleSubmit} className="add-film-form">
+        <div className="form-grid">
+          <div className="form-left">
+            <div className="form-section">
+              <h3 className="form-section-title">📋 Film Details</h3>
 
-        <div className="mb-3">
-          <label className="form-label">Category *</label>
-          <select name="category" className="form-control bg-dark text-light border-secondary"
-            value={formData.category} onChange={handleChange} required>
-            <option value="">Select Category</option>
-            {categories.map(cat => (
-              <option key={cat.id} value={cat.id}>{cat.name}</option>
-            ))}
-          </select>
-        </div>
+              <div className="form-group">
+                <label>Title *</label>
+                <input name="title" value={formData.title} onChange={handleChange}
+                  placeholder="Film title" required />
+              </div>
 
-        <div className="mb-3">
-          <label className="form-label">Description *</label>
-          <textarea name="description" className="form-control bg-dark text-light border-secondary"
-            rows="4" value={formData.description} onChange={handleChange} required />
-        </div>
+              <div className="form-group">
+                <label>Description *</label>
+                <textarea name="description" value={formData.description}
+                  onChange={handleChange} placeholder="Film description..." rows={5} required />
+              </div>
 
-        <div className="row">
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Duration (minutes)</label>
-            <input type="number" name="duration_minutes"
-              className="form-control bg-dark text-light border-secondary"
-              value={formData.duration_minutes} onChange={handleChange} />
+              <div className="form-row-2">
+                <div className="form-group">
+                  <label>Category *</label>
+                  <select name="category" value={formData.category} onChange={handleChange} required>
+                    <option value="">Select category</option>
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Language</label>
+                  <select name="language" value={formData.language} onChange={handleChange}>
+                    <option value="">Select language</option>
+                    {LANGUAGES.map(l => <option key={l} value={l}>{l}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-row-2">
+                <div className="form-group">
+                  <label>Duration (minutes)</label>
+                  <input type="number" name="duration_minutes" value={formData.duration_minutes}
+                    onChange={handleChange} placeholder="e.g. 15" min="1" max="999" />
+                </div>
+                <div className="form-group form-group-check-lg">
+                  <label>Content Type</label>
+                  <label className="toggle-label">
+                    <input type="checkbox" name="is_premium" checked={formData.is_premium}
+                      onChange={handleChange} />
+                    <span className="toggle-slider"></span>
+                    <span className="toggle-text">{formData.is_premium ? '👑 Premium' : '🆓 Free'}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="col-md-6 mb-3">
-            <label className="form-label">Language</label>
-            <input name="language" className="form-control bg-dark text-light border-secondary"
-              value={formData.language} onChange={handleChange} />
+
+          <div className="form-right">
+            <div className="form-section">
+              <h3 className="form-section-title">ℹ️ Edit Note</h3>
+              <div style={{
+                background: '#0d0d0d', border: '1px solid #2a2a2a',
+                borderRadius: 10, padding: 16, fontSize: 13, color: '#b3b3b3', lineHeight: 1.7
+              }}>
+                <p style={{ marginBottom: 10 }}>You are editing an existing film.</p>
+                <p style={{ marginBottom: 10 }}>• Status will remain unchanged.</p>
+                <p style={{ marginBottom: 10 }}>• To change the video file, delete and re-upload.</p>
+                <p>• Thumbnail can only be updated via the creator panel.</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="form-check mb-4">
-          <input type="checkbox" className="form-check-input" name="is_premium"
-            checked={formData.is_premium} onChange={handleChange} id="isPremium" />
-          <label className="form-check-label" htmlFor="isPremium">Premium Content</label>
-        </div>
-
-        <div className="d-flex gap-3">
-          <button type="submit" className="btn btn-primary" disabled={saving}>
-            {saving ? 'Saving...' : 'Save Changes'}
-          </button>
-          <button type="button" className="btn btn-secondary" onClick={() => navigate('/films')}>
-            Cancel
+        <div className="form-submit">
+          <button type="button" className="btn-cancel-form" onClick={() => navigate('/films')}
+            disabled={saving}>Cancel</button>
+          <button type="submit" className="btn-submit-film" disabled={saving}>
+            {saving ? '⏳ Saving...' : '💾 Save Changes'}
           </button>
         </div>
       </form>

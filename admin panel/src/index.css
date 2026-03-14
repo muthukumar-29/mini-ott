@@ -613,3 +613,370 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Admin shared classes (from global.css) ─────────────────────── */
+
+/* Stats grids */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 1100px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Content section card (admin pages) */
+.content-section {
+  background: linear-gradient(135deg, #1a1a1a, #0d0d0d);
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+/* Tables */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table-custom {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table-custom thead tr {
+  background: #0d0d0d;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.table-custom th {
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 700;
+  color: #b3b3b3;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.table-custom td {
+  padding: 13px 14px;
+  color: #d0d0d0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  vertical-align: middle;
+}
+
+.table-custom tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.table-custom tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Film info cell */
+.film-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.film-thumbnail {
+  width: 48px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* Admin badge variants */
+.badge-custom {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.badge-success {
+  background: rgba(0, 204, 102, 0.15);
+  color: #00cc66;
+}
+
+.badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.badge-danger {
+  background: rgba(229, 9, 20, 0.15);
+  color: #e50914;
+}
+
+.badge-info {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+/* Loading (admin style) */
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.spinner-border {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #2a2a2a;
+  border-top-color: #e50914;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Error message */
+.error-message {
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 8px;
+  padding: 14px 16px;
+  color: #ff4444;
+  font-size: 14px;
+  margin: 16px 0;
+}
+
+/* Search input (admin pages) */
+.search-input-large {
+  flex: 1;
+  min-width: 220px;
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.search-input-large:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+.search-input-large::placeholder {
+  color: #666;
+}
+
+/* Filter select (admin pages) */
+.filter-select {
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #e50914;
+}
+
+/* Buttons (admin variants) */
+.btn-primary-red {
+  padding: 9px 20px;
+  background: linear-gradient(135deg, #e50914, #b20710);
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s;
+  white-space: nowrap;
+}
+
+.btn-primary-red:hover {
+  transform: scale(1.04);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-action {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: transform 0.15s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-action:hover {
+  transform: scale(1.1);
+}
+
+.btn-edit {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.btn-edit:hover {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+.btn-delete {
+  background: rgba(229, 9, 20, 0.15);
+}
+
+.btn-delete:hover {
+  background: rgba(229, 9, 20, 0.3);
+}
+
+/* Modal (admin) */
+.modal-box {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #2a2a2a;
+  position: sticky;
+  top: 0;
+  background: #1a1a1a;
+  z-index: 1;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid #3a3a3a;
+  color: #b3b3b3;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.btn-cancel:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.btn-save-modal {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #e50914, #b20710);
+  border: none;
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.btn-save-modal:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn-save-modal:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Empty state (admin variant) */
+.empty-state-icon {
+  font-size: 56px;
+  margin-bottom: 16px;
+  opacity: 0.6;
+}
+
+.empty-state-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.empty-state-description {
+  font-size: 14px;
+  color: #b3b3b3;
+  max-width: 400px;
+}
+
+/* Section link */
+.section-link {
+  font-size: 13px;
+  color: #e50914;
+  text-decoration: none;
+}
+
+.section-link:hover {
+  text-decoration: underline;
+}
