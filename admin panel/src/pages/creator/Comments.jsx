@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
-import '../styles/Comments.css'
+import '../styles/CreatorComments.css'
 
 const Comments = () => {
   const { user } = useAuth()

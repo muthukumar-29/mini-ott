@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
-import '../styles/Dashboard.css'
+import '../styles/CreatorDashboard.css'
 
 const Dashboard = () => {
   const { user } = useAuth()

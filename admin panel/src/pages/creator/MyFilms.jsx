@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
 import Swal from 'sweetalert2'
-// import '../styles/MyFilms.css'
-import '../styles/Films.css'
+import '../styles/MyFilms.css'
 
 const MyFilms = () => {
   const { user } = useAuth()

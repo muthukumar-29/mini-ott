@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
-// import '../styles/Earnings.css'
+import '../styles/Earnings.css'
 
 const Earnings = () => {
   const { user } = useAuth()
@@ -29,11 +29,7 @@ const Earnings = () => {
 
   const approvedFilms = films.filter(f => f.status === 'APPROVED')
   const premiumFilms = approvedFilms.filter(f => f.is_premium)
-  const freeFilms = approvedFilms.filter(f => !f.is_premium)
-  const totalViews = approvedFilms.reduce((s, f) => s + (f.views || 0), 0)
   const premiumViews = premiumFilms.reduce((s, f) => s + (f.views || 0), 0)
-
-  // Simulated earnings (in real app this comes from backend payment system)
   const estimatedEarnings = (premiumViews * 0.002).toFixed(2)
   const monthlyEstimate = (premiumViews * 0.002 / 12).toFixed(2)
 
@@ -50,7 +46,6 @@ const Earnings = () => {
         <div className="loading-center"><div className="spinner" /></div>
       ) : (
         <>
-          {/* Revenue cards */}
           <div className="grid-3" style={{ marginBottom: 28 }}>
             <div className="earnings-hero-card">
               <p className="earnings-label">Estimated Total Earnings</p>
@@ -75,7 +70,6 @@ const Earnings = () => {
             </div>
           </div>
 
-          {/* Films earnings breakdown */}
           <div className="card" style={{ marginBottom: 24 }}>
             <div className="section-head">
               <h3 className="section-title">💰 Per-Film Breakdown</h3>
@@ -90,44 +84,24 @@ const Earnings = () => {
               <div className="table-wrap">
                 <table className="creator-table">
                   <thead>
-                    <tr>
-                      <th>Film</th>
-                      <th>Type</th>
-                      <th>Views</th>
-                      <th>Est. Revenue</th>
-                      <th>Rating</th>
-                    </tr>
+                    <tr><th>Film</th><th>Type</th><th>Views</th><th>Est. Revenue</th><th>Rating</th></tr>
                   </thead>
                   <tbody>
                     {approvedFilms.sort((a, b) => (b.views || 0) - (a.views || 0)).map(film => (
                       <tr key={film.id}>
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <img
-                              src={film.thumbnail_url || 'https://placehold.co/40x56/18181f/505060?text=?'}
-                              style={{ width: 40, height: 56, borderRadius: 6, objectFit: 'cover' }}
-                              alt={film.title}
-                            />
+                            <img src={film.thumbnail_url || 'https://placehold.co/40x56/18181f/505060?text=?'}
+                              style={{ width: 40, height: 56, borderRadius: 6, objectFit: 'cover' }} alt={film.title} />
                             <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)' }}>{film.title}</span>
                           </div>
                         </td>
-                        <td>
-                          <span className={`badge ${film.is_premium ? 'badge-premium' : 'badge-free'}`}>
-                            {film.is_premium ? '👑 Premium' : '🆓 Free'}
-                          </span>
-                        </td>
+                        <td><span className={`badge ${film.is_premium ? 'badge-premium' : 'badge-free'}`}>{film.is_premium ? '👑 Premium' : '🆓 Free'}</span></td>
                         <td style={{ color: 'var(--text)', fontWeight: 600 }}>{(film.views || 0).toLocaleString()}</td>
-                        <td>
-                          <span style={{ color: film.is_premium ? 'var(--accent)' : 'var(--text3)', fontWeight: film.is_premium ? 700 : 400 }}>
-                            {film.is_premium ? `₹${((film.views || 0) * 0.002).toFixed(2)}` : '—'}
-                          </span>
-                        </td>
-                        <td>
-                          {film.average_rating
-                            ? <span style={{ color: 'var(--accent)' }}>★ {film.average_rating}</span>
-                            : <span style={{ color: 'var(--text3)' }}>—</span>
-                          }
-                        </td>
+                        <td><span style={{ color: film.is_premium ? 'var(--accent)' : 'var(--text3)', fontWeight: film.is_premium ? 700 : 400 }}>
+                          {film.is_premium ? `₹${((film.views || 0) * 0.002).toFixed(2)}` : '—'}
+                        </span></td>
+                        <td>{film.average_rating ? <span style={{ color: 'var(--accent)' }}>★ {film.average_rating}</span> : <span style={{ color: 'var(--text3)' }}>—</span>}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -136,15 +110,10 @@ const Earnings = () => {
             )}
           </div>
 
-          {/* Subscription plans info */}
           {plans.length > 0 && (
             <div className="card">
-              <div className="section-head">
-                <h3 className="section-title">📦 Active Subscription Plans</h3>
-              </div>
-              <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>
-                Users subscribing to these plans get access to your premium films.
-              </p>
+              <div className="section-head"><h3 className="section-title">📦 Active Subscription Plans</h3></div>
+              <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 16 }}>Users subscribing to these plans get access to your premium films.</p>
               <div className="plans-grid">
                 {plans.map(plan => (
                   <div key={plan.id} className="plan-card">
@@ -157,12 +126,11 @@ const Earnings = () => {
             </div>
           )}
 
-          {/* Payout info notice */}
           <div className="earnings-notice">
             <span>ℹ️</span>
             <div>
               <strong>About Earnings</strong>
-              <p>Earnings are estimated based on premium film views (₹0.002 per view). Actual payouts depend on your subscription revenue share agreement with FilmHub. Contact admin for payout setup.</p>
+              <p>Earnings are estimated based on premium film views (₹0.002 per view). Actual payouts depend on your subscription revenue share agreement with FilmHub.</p>
             </div>
           </div>
         </>

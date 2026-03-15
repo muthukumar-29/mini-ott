@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import api from '../../api/axios'
 import Swal from 'sweetalert2'
-// import '../styles/UploadFilm.css'
-import '../styles/Films.css'
+import '../styles/UploadFilm.css'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,

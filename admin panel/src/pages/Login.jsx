@@ -30,19 +30,25 @@ const Login = () => {
       localStorage.setItem('admin_token', accessToken);
 
       // Step 3: Fetch profile to get role
+      // Django may return role at top-level OR nested inside profile{}
       const profileRes = await api.get('auth/profile/');
       const userData = profileRes.data;
 
-      const role = userData.role;
-      if (role !== 'ADMIN' && role !== 'CREATOR') {
+      // Support both: userData.role  AND  userData.profile.role
+      const role = userData.role || userData.profile?.role;
+
+      if (!role || (role !== 'ADMIN' && role !== 'CREATOR')) {
         localStorage.removeItem('admin_token');
         setError('Access denied. Only Admins and Creators can log in here.');
         setLoading(false);
         return;
       }
 
+      // Normalize role onto userData so AuthContext always sees it at top level
+      const normalizedUser = { ...userData, role };
+
       // Step 4: Commit to AuthContext
-      login({ token: accessToken, user: userData });
+      login({ token: accessToken, user: normalizedUser });
 
       // Step 5: Redirect by role
       navigate(role === 'ADMIN' ? '/dashboard' : '/creator/dashboard', { replace: true });

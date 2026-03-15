@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import api from '../../api/axios'
 import { useAuth } from '../../contexts/AuthContext'
-import '../styles/Analytics.css'
+import '../styles/CreatorAnalytics.css'
 
 const Analytics = () => {
   const { user } = useAuth()
