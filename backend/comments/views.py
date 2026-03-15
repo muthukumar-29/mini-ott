@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from .models import Comment, CommentLike
 from .serializers import CommentSerializer
@@ -9,13 +9,29 @@ from .serializers import CommentSerializer
 
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        # Reading comments is public (OTT film detail page shows reviews)
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_queryset(self):
+        # Public: only approved comments
         queryset = Comment.objects.filter(is_approved=True)
         film_id = self.request.query_params.get('film')
         if film_id:
             queryset = queryset.filter(film_id=film_id)
+
+        # Admins/staff also see unapproved
+        user = self.request.user
+        if user.is_authenticated and user.is_staff:
+            queryset = Comment.objects.all()
+            if film_id:
+                queryset = queryset.filter(film_id=film_id)
+
         return queryset
 
     def perform_create(self, serializer):
@@ -37,20 +53,11 @@ class CommentViewSet(ModelViewSet):
             return Response({'liked': False, 'likes_count': comment.likes.count()})
         return Response({'liked': True, 'likes_count': comment.likes.count()})
 
-    @action(detail=False, methods=['get'])
-    def all(self, request):
-        """Admin endpoint to get all comments including unapproved"""
-        if not request.user.is_staff:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        queryset = Comment.objects.all()
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
-    @action(detail=True, methods=['patch'])
+    @action(detail=True, methods=['post', 'patch'])
     def approve(self, request, pk=None):
-        """Admin toggle comment approval"""
+        """Admin: toggle comment approval."""
         if not request.user.is_staff:
-            return Response(status=status.HTTP_403_FORBIDDEN)
+            return Response({'error': 'Admin only'}, status=status.HTTP_403_FORBIDDEN)
         comment = self.get_object()
         comment.is_approved = not comment.is_approved
         comment.save()

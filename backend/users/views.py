@@ -4,10 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from .serializers import UserSerializer
-from .models import UserProfile
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate
 
 
 class UserViewSet(ModelViewSet):
@@ -17,12 +14,11 @@ class UserViewSet(ModelViewSet):
 
 
 class RegisterView(APIView):
-    """Public registration - creates VIEWER accounts"""
+    """Public registration — creates VIEWER accounts."""
     permission_classes = [AllowAny]
 
     def post(self, request):
         data = request.data.copy()
-        # Force role to VIEWER for public registration
         data['role'] = 'VIEWER'
         data['is_active'] = True
 
@@ -39,7 +35,7 @@ class RegisterView(APIView):
 
 
 class ProfileView(APIView):
-    """Get/Update logged-in user's profile"""
+    """Get / update logged-in user's profile."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -77,22 +73,38 @@ class ProfileView(APIView):
             'role': profile.role if profile else 'VIEWER',
         })
 
+
 class ChangePasswordView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         user = request.user
-        current_password = request.data.get('current_password')
+        # Accept BOTH field names — frontend inconsistency across pages
+        # OTT Profile.jsx sends: old_password / new_password
+        # Creator Settings.jsx sends: current_password / new_password
+        current_password = (
+            request.data.get('current_password') or
+            request.data.get('old_password')
+        )
         new_password = request.data.get('new_password')
 
         if not current_password or not new_password:
-            return Response({'detail': 'Both current and new password required.'}, status=400)
+            return Response(
+                {'detail': 'Both current password and new password are required.'},
+                status=400
+            )
 
         if not user.check_password(current_password):
-            return Response({'detail': 'Current password is incorrect.'}, status=400)
+            return Response(
+                {'detail': 'Current password is incorrect.'},
+                status=400
+            )
 
-        if len(new_password) < 8:
-            return Response({'detail': 'Password must be at least 8 characters.'}, status=400)
+        if len(new_password) < 6:
+            return Response(
+                {'detail': 'Password must be at least 6 characters.'},
+                status=400
+            )
 
         user.set_password(new_password)
         user.save()
