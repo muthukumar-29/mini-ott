@@ -15,7 +15,7 @@ const Profile = () => {
     last_name:  user?.last_name  || '',
     email:      user?.email      || '',
   });
-  const [passwords, setPasswords] = useState({ old_password: '', new_password: '', confirm: '' });
+  const [passwords, setPasswords] = useState({ current_password: '', new_password: '', confirm: '' });
   const [saving,    setSaving]    = useState(false);
   const [pwError,   setPwError]   = useState('');
 
@@ -39,10 +39,10 @@ const Profile = () => {
     setSaving(true);
     try {
       await api.post('auth/change-password/', {
-        old_password: passwords.old_password,
+        current_password: passwords.current_password,
         new_password: passwords.new_password,
       });
-      setPasswords({ old_password: '', new_password: '', confirm: '' });
+      setPasswords({ current_password: '', new_password: '', confirm: '' });
       Swal.fire({ icon: 'success', title: 'Password changed!', timer: 1400, showConfirmButton: false, background: '#111', color: '#f2f0ea' });
     } catch (err) {
       setPwError(err?.response?.data?.detail || 'Incorrect current password.');
@@ -171,11 +171,13 @@ const Profile = () => {
                 <h2 className="profile-card-title">Account Information</h2>
                 <div className="account-info">
                   {[
-                    ['User ID',   `#${user?.id}`],
-                    ['Username',  user?.username],
-                    ['Role',      user?.role || 'VIEWER'],
-                    ['Subscription', user?.is_subscribed ? '👑 Active Premium' : 'Free Plan'],
-                  ].map(([lbl, val]) => (
+                    ['User ID',      `#${user?.id}`],
+                    ['Username',     user?.username],
+                    ['Role',         user?.role || 'VIEWER'],
+                    ['Subscription', user?.is_subscribed ? `👑 ${user?.plan_name || 'Premium'} — Active` : 'Free Plan'],
+                    user?.is_subscribed && ['Valid Till', user?.subscription_end ? new Date(user.subscription_end).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'],
+                    user?.is_subscribed && ['Days Remaining', `${user?.days_remaining || 0} days`],
+                  ].filter(Boolean).map(([lbl, val]) => (
                     <div key={lbl} className="account-row">
                       <span className="account-label">{lbl}</span>
                       <span className="account-value">{val}</span>

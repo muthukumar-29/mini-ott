@@ -33,12 +33,15 @@ const Users = () => {
 
   const openEdit = (user) => {
     setEditUser(user);
+    // BUG FIX: properly read role from profile or top-level; read is_active correctly
+    const role = user.profile?.role || user.role_display || user.role || 'VIEWER';
+    const isActive = typeof user.is_active === 'boolean' ? user.is_active : true;
     setForm({
       username: user.username,
       email: user.email,
       password: '',
-      role: user.profile?.role || user.role || 'VIEWER',
-      is_active: user.is_active,
+      role,
+      is_active: isActive,
     });
     setShowModal(true);
   };
@@ -50,17 +53,41 @@ const Users = () => {
     }
     setSaving(true);
     try {
-      const payload = { username: form.username, email: form.email, role: form.role, is_active: form.is_active };
+      // BUG FIX: always send role and is_active so backend updates them
+      const payload = {
+        username: form.username,
+        email: form.email,
+        role: form.role,
+        is_active: form.is_active,
+      };
       if (form.password) payload.password = form.password;
 
       if (editUser) {
-        await api.patch(`users/${editUser.id}/`, payload);
-        setUsers(prev => prev.map(u => u.id === editUser.id ? { ...u, ...payload } : u));
+        const res = await api.patch(`users/${editUser.id}/`, payload);
+        // BUG FIX: merge updated fields back into local state correctly
+        setUsers(prev => prev.map(u => {
+          if (u.id !== editUser.id) return u;
+          return {
+            ...u,
+            ...res.data,
+            // ensure role is accessible at the right path for display
+            role: payload.role,
+            role_display: payload.role,
+            profile: { ...(u.profile || {}), role: payload.role },
+            is_active: payload.is_active,
+          };
+        }));
         Swal.fire({ icon: 'success', title: 'User Updated!', timer: 1200, showConfirmButton: false });
       } else {
-        if (!form.password) { Swal.fire('Error', 'Password required for new users', 'error'); return; }
+        if (!form.password) { Swal.fire('Error', 'Password required for new users', 'error'); setSaving(false); return; }
         const res = await api.post('users/', payload);
-        setUsers(prev => [...prev, res.data]);
+        setUsers(prev => [...prev, {
+          ...res.data,
+          role: payload.role,
+          role_display: payload.role,
+          profile: { role: payload.role },
+          is_active: payload.is_active,
+        }]);
         Swal.fire({ icon: 'success', title: 'User Created!', timer: 1200, showConfirmButton: false });
       }
       setShowModal(false);
@@ -84,15 +111,21 @@ const Users = () => {
   };
 
   const toggleActive = async (user) => {
+    const newStatus = !user.is_active;
     try {
-      await api.patch(`users/${user.id}/`, { is_active: !user.is_active });
-      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_active: !u.is_active } : u));
+      // BUG FIX: send role along with is_active so backend doesn't reset it
+      const currentRole = user.profile?.role || user.role_display || user.role || 'VIEWER';
+      await api.patch(`users/${user.id}/`, { is_active: newStatus, role: currentRole });
+      setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_active: newStatus } : u));
     } catch { Swal.fire('Error', 'Failed to update status', 'error'); }
   };
 
+  const getUserRole = (user) => user.profile?.role || user.role_display || user.role || 'VIEWER';
+  const getUserActive = (user) => typeof user.is_active === 'boolean' ? user.is_active : true;
+
   const filtered = users.filter(u => {
     const matchSearch = !search || u.username?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase());
-    const role = u.profile?.role || u.role || '';
+    const role = getUserRole(u);
     const matchRole = !filterRole || role === filterRole;
     return matchSearch && matchRole;
   });
@@ -141,7 +174,8 @@ const Users = () => {
             </thead>
             <tbody>
               {filtered.map(user => {
-                const role = user.profile?.role || user.role || 'VIEWER';
+                const role = getUserRole(user);
+                const isActive = getUserActive(user);
                 return (
                   <tr key={user.id}>
                     <td>
@@ -161,11 +195,11 @@ const Users = () => {
                     </td>
                     <td>
                       <button
-                        className={`toggle-active ${user.is_active ? 'active' : 'inactive'}`}
+                        className={`toggle-active ${isActive ? 'active' : 'inactive'}`}
                         onClick={() => toggleActive(user)}
-                        title="Click to toggle"
+                        title="Click to toggle active status"
                       >
-                        {user.is_active ? '● Active' : '○ Inactive'}
+                        {isActive ? '● Active' : '○ Inactive'}
                       </button>
                     </td>
                     <td style={{ fontSize: 13, color: '#b3b3b3' }}>
@@ -206,6 +240,7 @@ const Users = () => {
                 <label>{editUser ? 'New Password (leave blank to keep)' : 'Password *'}</label>
                 <input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Password" />
               </div>
+              {/* BUG FIX: Role and is_active visually match current values */}
               <div className="form-group">
                 <label>Role</label>
                 <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}>
@@ -213,10 +248,16 @@ const Users = () => {
                 </select>
               </div>
               <div className="form-group-check">
-                <input type="checkbox" id="isActive" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} />
+                <input
+                  type="checkbox"
+                  id="isActive"
+                  checked={form.is_active}
+                  onChange={e => setForm({ ...form, is_active: e.target.checked })}
+                />
                 <label htmlFor="isActive">Active Account</label>
               </div>
-            </div><br />
+            </div>
+            <br />
             <div className="modal-footer">
               <button className="btn-cancel" onClick={() => setShowModal(false)}>Cancel</button>
               <button className="btn-save-modal" onClick={handleSave} disabled={saving}>

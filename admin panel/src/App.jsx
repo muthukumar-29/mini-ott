@@ -17,6 +17,8 @@ import Users from './pages/Users';
 import Analytics from './pages/Analytics';
 import Comments from './pages/Comments';
 import Settings from './pages/Settings';
+// BUG FIX 3: Import the fixed subscriptions page (renamed to avoid conflict)
+import SubscriptionsAdmin from './pages/SubscriptionsAdmin';
 
 // Creator pages
 import CreatorDashboard from './pages/creator/Dashboard';
@@ -63,26 +65,28 @@ const AppRoutes = () => {
       <Route element={<RequireAuth><MainLayout /></RequireAuth>}>
 
         {/* Admin routes */}
-        <Route path="/dashboard" element={<RequireAdmin><Dashboard /></RequireAdmin>} />
-        <Route path="/films" element={<RequireAdmin><Films /></RequireAdmin>} />
-        <Route path="/films/add" element={<RequireAdmin><AddFilm /></RequireAdmin>} />
-        <Route path="/films/edit/:id" element={<RequireAdmin><EditFilm /></RequireAdmin>} />
-        <Route path="/films/approval" element={<RequireAdmin><FilmApproval /></RequireAdmin>} />
-        <Route path="/categories" element={<RequireAdmin><Categories /></RequireAdmin>} />
-        <Route path="/users" element={<RequireAdmin><Users /></RequireAdmin>} />
-        <Route path="/analytics" element={<RequireAdmin><Analytics /></RequireAdmin>} />
-        <Route path="/comments" element={<RequireAdmin><Comments /></RequireAdmin>} />
-        <Route path="/settings" element={<RequireAdmin><Settings /></RequireAdmin>} />
+        <Route path="/dashboard"        element={<RequireAdmin><Dashboard /></RequireAdmin>} />
+        <Route path="/films"            element={<RequireAdmin><Films /></RequireAdmin>} />
+        <Route path="/films/add"        element={<RequireAdmin><AddFilm /></RequireAdmin>} />
+        <Route path="/films/edit/:id"   element={<RequireAdmin><EditFilm /></RequireAdmin>} />
+        <Route path="/films/approval"   element={<RequireAdmin><FilmApproval /></RequireAdmin>} />
+        <Route path="/categories"       element={<RequireAdmin><Categories /></RequireAdmin>} />
+        <Route path="/users"            element={<RequireAdmin><Users /></RequireAdmin>} />
+        <Route path="/analytics"        element={<RequireAdmin><Analytics /></RequireAdmin>} />
+        <Route path="/comments"         element={<RequireAdmin><Comments /></RequireAdmin>} />
+        {/* BUG FIX 3: Use the new SubscriptionsAdmin component */}
+        <Route path="/subscriptions"    element={<RequireAdmin><SubscriptionsAdmin /></RequireAdmin>} />
+        <Route path="/settings"         element={<RequireAdmin><Settings /></RequireAdmin>} />
 
         {/* Creator routes */}
-        <Route path="/creator/dashboard" element={<RequireCreator><CreatorDashboard /></RequireCreator>} />
-        <Route path="/creator/films" element={<RequireCreator><CreatorMyFilms /></RequireCreator>} />
-        <Route path="/creator/films/upload" element={<RequireCreator><CreatorUploadFilm /></RequireCreator>} />
+        <Route path="/creator/dashboard"      element={<RequireCreator><CreatorDashboard /></RequireCreator>} />
+        <Route path="/creator/films"          element={<RequireCreator><CreatorMyFilms /></RequireCreator>} />
+        <Route path="/creator/films/upload"   element={<RequireCreator><CreatorUploadFilm /></RequireCreator>} />
         <Route path="/creator/films/edit/:id" element={<RequireCreator><CreatorEditFilm /></RequireCreator>} />
-        <Route path="/creator/analytics" element={<RequireCreator><CreatorAnalytics /></RequireCreator>} />
-        <Route path="/creator/comments" element={<RequireCreator><CreatorComments /></RequireCreator>} />
-        <Route path="/creator/earnings" element={<RequireCreator><CreatorEarnings /></RequireCreator>} />
-        <Route path="/creator/settings" element={<RequireCreator><CreatorSettings /></RequireCreator>} />
+        <Route path="/creator/analytics"      element={<RequireCreator><CreatorAnalytics /></RequireCreator>} />
+        <Route path="/creator/comments"       element={<RequireCreator><CreatorComments /></RequireCreator>} />
+        <Route path="/creator/earnings"       element={<RequireCreator><CreatorEarnings /></RequireCreator>} />
+        <Route path="/creator/settings"       element={<RequireCreator><CreatorSettings /></RequireCreator>} />
 
       </Route>
 

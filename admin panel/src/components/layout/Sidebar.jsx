@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Swal from 'sweetalert2';
 import './Sidebar.css';
 
 const adminMenu = [
@@ -11,6 +12,7 @@ const adminMenu = [
   { id: 'users', path: '/users', icon: '👥', label: 'Users', end: true },
   { id: 'analytics', path: '/analytics', icon: '📈', label: 'Analytics', end: true },
   { id: 'comments', path: '/comments', icon: '💬', label: 'Comments', end: true },
+  { id: 'subscriptions', path: '/subscriptions', icon: '💳', label: 'Subscriptions', end: true },
   { id: 'settings', path: '/settings', icon: '⚙️', label: 'Settings', end: true },
 ];
 
@@ -31,9 +33,25 @@ const Sidebar = ({ collapsed }) => {
   const roleLabel = isAdmin ? 'ADMIN' : 'CREATOR';
   const roleColor = isAdmin ? '#e50914' : '#f5a623';
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  // BUG FIX 6: Confirm before logout
+  const handleLogout = async () => {
+    const result = await Swal.fire({
+      title: 'Logout?',
+      text: 'Are you sure you want to sign out?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#e50914',
+      cancelButtonColor: '#3a3a3a',
+      confirmButtonText: 'Yes, Logout',
+      cancelButtonText: 'Cancel',
+      background: '#111118',
+      color: '#f0f0e8',
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      navigate('/login');
+    }
   };
 
   return (
@@ -74,6 +92,7 @@ const Sidebar = ({ collapsed }) => {
       </nav>
 
       <div className="sidebar-footer">
+        {/* BUG FIX 6: Logout now shows confirmation */}
         <button className="sidebar-logout" onClick={handleLogout}>
           <span>🚪</span>
           {!collapsed && <span>Logout</span>}

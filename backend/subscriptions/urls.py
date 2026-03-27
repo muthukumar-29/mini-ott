@@ -1,8 +1,21 @@
 from rest_framework.routers import DefaultRouter
-from .views import SubscriptionPlanViewSet
+from django.urls import path
+from .views import (
+    SubscriptionPlanViewSet,
+    CreateOrderView,
+    VerifyPaymentView,
+    MySubscriptionView,
+    SubscriberListView,
+    GrantSubscriptionView,
+)
 
 router = DefaultRouter()
-# OTT fetches GET /api/subscriptions/plans/ — keep "plans" as the prefix
 router.register('subscriptions/plans', SubscriptionPlanViewSet, basename='subscription-plan')
 
-urlpatterns = router.urls
+urlpatterns = router.urls + [
+    path('subscriptions/create-order/',    CreateOrderView.as_view()),
+    path('subscriptions/verify-payment/',  VerifyPaymentView.as_view()),
+    path('subscriptions/my-subscription/', MySubscriptionView.as_view()),
+    path('subscriptions/subscribers/',     SubscriberListView.as_view()),
+    path('subscriptions/grant/',           GrantSubscriptionView.as_view()),
+]

@@ -7,7 +7,14 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ username: '', email: '', password: '', confirm: '' });
+  // BUG FIX 4: Added role field — default VIEWER, allow CREATOR
+  const [form, setForm] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirm: '',
+    role: 'VIEWER',
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
@@ -26,7 +33,8 @@ const Register = () => {
     }
     setLoading(true); setError('');
     try {
-      await register(form.username, form.email, form.password);
+      // Pass role to register — backend will accept VIEWER or CREATOR
+      await register(form.username, form.email, form.password, form.role);
       navigate('/');
     } catch (err) {
       const data = err?.response?.data;
@@ -56,7 +64,7 @@ const Register = () => {
           <h2 className="auth-visual-headline">Your story starts now.</h2>
           <p className="auth-visual-sub">Join thousands of film lovers discovering the next generation of storytellers. Free to start.</p>
           <ul className="auth-perks">
-            {['Watch free films instantly', 'Build your personal watchlist', 'Rate and review films', 'Get personalized recommendations'].map((p, i) => (
+            {['Watch free films instantly', 'Build your personal watchlist', 'Rate and review films', 'Upload your own short films as a Creator'].map((p, i) => (
               <li key={i}><span className="perk-check">✓</span>{p}</li>
             ))}
           </ul>
@@ -72,6 +80,31 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="auth-form">
             {error && <div className="error-text">{error}</div>}
+
+            {/* BUG FIX 4: Role toggle — Viewer or Creator */}
+            <div className="form-group" style={{ marginBottom: 20 }}>
+              <label className="form-label">I want to join as</label>
+              <div className="role-selector">
+                <button
+                  type="button"
+                  className={`role-option ${form.role === 'VIEWER' ? 'active' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, role: 'VIEWER' }))}
+                >
+                  <span className="role-icon">🎬</span>
+                  <span className="role-label">Viewer</span>
+                  <span className="role-desc">Watch & discover films</span>
+                </button>
+                <button
+                  type="button"
+                  className={`role-option ${form.role === 'CREATOR' ? 'active creator' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, role: 'CREATOR' }))}
+                >
+                  <span className="role-icon">🎥</span>
+                  <span className="role-label">Creator</span>
+                  <span className="role-desc">Upload & share your films</span>
+                </button>
+              </div>
+            </div>
 
             <div className="form-group">
               <label className="form-label">Username *</label>
@@ -113,7 +146,12 @@ const Register = () => {
             </div>
 
             <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={loading}>
-              {loading ? <><div className="spinner" style={{width:18,height:18,borderWidth:2}} /> Creating account…</> : 'Create Free Account'}
+              {loading
+                ? <><div className="spinner" style={{width:18,height:18,borderWidth:2}} /> Creating account…</>
+                : form.role === 'CREATOR'
+                  ? '🎥 Create Creator Account'
+                  : 'Create Free Account'
+              }
             </button>
           </form>
 

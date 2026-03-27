@@ -25,15 +25,19 @@ export const AuthProvider = ({ children }) => {
     const profile = await api.get('auth/profile/', {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
-    const userData = { ...profile.data, role: profile.data.role || profile.data.profile?.role || 'VIEWER' };
+    const userData = {
+      ...profile.data,
+      role: profile.data.role || profile.data.profile?.role || 'VIEWER',
+    };
     setToken(accessToken);
     setUser(userData);
     localStorage.setItem('ott_user', JSON.stringify(userData));
     return userData;
   };
 
-  const register = async (username, email, password) => {
-    await api.post('auth/register/', { username, email, password });
+  // BUG FIX 4: Accept role parameter and pass it to backend
+  const register = async (username, email, password, role = 'VIEWER') => {
+    await api.post('auth/register/', { username, email, password, role });
     return login(username, password);
   };
 

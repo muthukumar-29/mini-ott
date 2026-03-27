@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Swal from 'sweetalert2';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -42,10 +43,28 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
+  // BUG FIX 6: Confirm before logout
+  const handleLogout = async () => {
     setDropOpen(false);
+    setMenuOpen(false);
+
+    const result = await Swal.fire({
+      title: 'Logout?',
+      text: 'Are you sure you want to sign out?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#e8001d',
+      cancelButtonColor: '#2a2a2a',
+      confirmButtonText: 'Yes, Logout',
+      cancelButtonText: 'Cancel',
+      background: '#111',
+      color: '#f2f0ea',
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      navigate('/');
+    }
   };
 
   const isHome = location.pathname === '/';
@@ -108,6 +127,7 @@ const Navbar = () => {
                   <Link to="/watchlist"    className="drop-item">🔖 Watchlist</Link>
                   <Link to="/subscriptions" className="drop-item">👑 Subscription</Link>
                   <div className="drop-divider" />
+                  {/* BUG FIX 6: Confirm logout */}
                   <button className="drop-item danger" onClick={handleLogout}>🚪 Logout</button>
                 </div>
               )}
@@ -139,6 +159,7 @@ const Navbar = () => {
         {isAuthenticated ? (
           <>
             <NavLink to="/profile" className="mobile-link">Profile</NavLink>
+            {/* BUG FIX 6: Mobile logout also confirms */}
             <button className="mobile-link danger-link" onClick={handleLogout}>Logout</button>
           </>
         ) : (

@@ -47,15 +47,18 @@ INSTALLED_APPS = [
     'comments',  
     'watchlist',
     'analytics', 
+    'notifications'
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 24,
 }
 
 from datetime import timedelta
@@ -155,3 +158,24 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADD these lines to your backend/config/settings.py
+# Replace with your actual Razorpay TEST keys from https://dashboard.razorpay.com
+# ─────────────────────────────────────────────────────────────────────────────
+
+RAZORPAY_KEY_ID     = 'rzp_test_S8wSq0AH4a56ga'      # from Razorpay Dashboard
+RAZORPAY_KEY_SECRET = 'uabb0UXVAHkb4c0w1XEfH4h6'           # keep this SECRET, never expose
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ADD to requirements.txt:
+#   razorpay==1.4.2
+#
+# Then run: pip install razorpay
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# ALSO update DEFAULT_AUTO_FIELD if not already present:
+# ─────────────────────────────────────────────────────────────────────────────
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
