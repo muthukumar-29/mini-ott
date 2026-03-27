@@ -39,8 +39,14 @@ const SubscriptionsAdmin = () => {
   const fetchSubscribers = async () => {
     try {
       const res = await api.get('subscriptions/subscribers/');
-      setSubscribers(res.data?.results || res.data || []);
-    } catch { }
+      // Ensure it's always an array regardless of API response shape
+      const data = res.data;
+      if (Array.isArray(data)) setSubscribers(data);
+      else if (Array.isArray(data?.results)) setSubscribers(data.results);
+      else setSubscribers([]);
+    } catch {
+      setSubscribers([]);
+    }
   };
 
   const openAdd = () => {
@@ -122,9 +128,9 @@ const SubscriptionsAdmin = () => {
     } catch { Swal.fire('Error', 'Failed to update plan status', 'error'); }
   };
 
-  const totalRevenue = subscribers.reduce((sum, s) => {
-    return sum + (parseFloat(s.plan?.price || 0));
-  }, 0);
+  const totalRevenue = Array.isArray(subscribers)
+    ? subscribers.reduce((sum, s) => sum + parseFloat(s.plan?.price || s.price || 0), 0)
+    : 0;
 
   return (
     <div className="subscriptions-admin-page">
